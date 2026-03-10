@@ -169,13 +169,13 @@ end
 -- Guild Master & Permissions
 -- ============================================================
 local function IsGuildMaster()
-    local guildName, guildRank, guildRankIndex = C_GuildInfo.GetMyGuildInfo()
+    local guildName, guildRank, guildRankIndex = GetGuildInfo("player")
     if not guildName then return false end
     return guildRankIndex == 0
 end
 
 local function GetPlayerRankIndex()
-    local guildName, guildRank, guildRankIndex = C_GuildInfo.GetMyGuildInfo()
+    local guildName, guildRank, guildRankIndex = GetGuildInfo("player")
     if not guildName then return -1 end
     return guildRankIndex
 end
@@ -1938,7 +1938,7 @@ local function BuildMainFrame()
         adminY = adminY - 24
 
         -- Get all guild ranks
-        local guildName, guildRank, guildRankIndex = C_GuildInfo.GetMyGuildInfo()
+        local guildName, guildRank, guildRankIndex = GetGuildInfo("player")
         local guildRanks = {}
         for i=0, GetNumGuildRanks()-1 do
             local rankName = GetGuildRankInfo(i)
