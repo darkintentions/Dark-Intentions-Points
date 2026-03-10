@@ -481,6 +481,7 @@ local RefreshSummary
 local RefreshGP
 local RefreshSettings
 local RefreshGuildBrowser
+local RefreshAdmin
 
 ShowUnsavedWarning = function()
     if GRP.warnBar then GRP.warnBar:Show() end
