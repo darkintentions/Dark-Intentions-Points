@@ -1161,7 +1161,6 @@ local function BuildMainFrame()
     SHdr("EP (Effort Pts)", sx,S_EP_W,.4,.9,.4) ; sx=sx+S_EP_W+6
     SHdr("GP (Gear Pts)",   sx,S_GP_W,1,.7,.2)  ; sx=sx+S_GP_W+6
     SHdr("PR (EP / GP)",    sx,S_PR_W,1,.85,0)  ; sx=sx+S_PR_W+6+42+4
-    SHdr("Hist", sx, ICO_W, .4,.7,.9)
 
     local sHdrSep = sumPanel:CreateTexture(nil,"BACKGROUND")
     sHdrSep:SetPoint("TOPLEFT", sumPanel,"TOPLEFT", 0,-20)
