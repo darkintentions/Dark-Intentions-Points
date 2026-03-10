@@ -1398,20 +1398,29 @@ local function BuildMainFrame()
 
             local delBtn = StBtn("X",24,22,472,epY,.8,.2,.2)
             delBtn:SetScript("OnClick",function()
-                for j,k in ipairs(EP_KEY_ORDER) do
-                    if k==key then table.remove(EP_KEY_ORDER,j) ; break end
-                end
-                POINT_VALUES[key]=nil ; BUTTON_LABELS[key]=nil ; EP_HDR_LABELS[key]=nil
-                local s = DarkIntentionsPointsDB.settings
-                for j,def in ipairs(s.ep_custom) do
-                    if def.key==key then table.remove(s.ep_custom,j) ; break end
-                end
-                s["ep_"..key]=nil ; s["eph_"..key]=nil
-                ShowUnsavedWarning()
-                for _,row in ipairs(GRP.rosterRows) do row:Hide() end
-                GRP.rosterRows = {}
-                if GRP.RebuildEPHeaders then GRP.RebuildEPHeaders() end
-                RefreshRoster() ; RefreshSettings()
+                local btnLabel = BUTTON_LABELS[key] or key
+                StaticPopupDialogs["DIP_DEL_EP_BTN"] = {
+                    text    = "Delete EP button |cffffd700"..btnLabel.."|r?",
+                    button1 = "Delete", button2 = "Cancel",
+                    OnAccept = function()
+                        for j,k in ipairs(EP_KEY_ORDER) do
+                            if k==key then table.remove(EP_KEY_ORDER,j) ; break end
+                        end
+                        POINT_VALUES[key]=nil ; BUTTON_LABELS[key]=nil ; EP_HDR_LABELS[key]=nil
+                        local s = DarkIntentionsPointsDB.settings
+                        for j,def in ipairs(s.ep_custom) do
+                            if def.key==key then table.remove(s.ep_custom,j) ; break end
+                        end
+                        s["ep_"..key]=nil ; s["eph_"..key]=nil
+                        ShowUnsavedWarning()
+                        for _,row in ipairs(GRP.rosterRows) do row:Hide() end
+                        GRP.rosterRows = {}
+                        if GRP.RebuildEPHeaders then GRP.RebuildEPHeaders() end
+                        RefreshRoster() ; RefreshSettings()
+                    end,
+                    timeout=0, whileDead=true, hideOnEscape=true,
+                }
+                StaticPopup_Show("DIP_DEL_EP_BTN")
             end)
 
             epY = epY - 30
@@ -1492,20 +1501,29 @@ local function BuildMainFrame()
 
             local delBtn = StBtn("X",24,22,472,gpY,.8,.2,.2)
             delBtn:SetScript("OnClick",function()
-                for j,k in ipairs(GP_KEY_ORDER) do
-                    if k==key then table.remove(GP_KEY_ORDER,j) ; break end
-                end
-                GP_VALUES[key]=nil ; GP_LABELS[key]=nil ; GP_HDR_LABELS[key]=nil
-                local s = DarkIntentionsPointsDB.settings
-                for j,def in ipairs(s.gp_custom) do
-                    if def.key==key then table.remove(s.gp_custom,j) ; break end
-                end
-                s["gp_"..key]=nil ; s["gph_"..key]=nil
-                ShowUnsavedWarning()
-                for _,row in ipairs(GRP.gpRows) do row:Hide() end
-                GRP.gpRows = {}
-                if GRP.RebuildGPHeaders then GRP.RebuildGPHeaders() end
-                RefreshGP() ; RefreshSettings()
+                local btnLabel = GP_LABELS[key] or key
+                StaticPopupDialogs["DIP_DEL_GP_BTN"] = {
+                    text    = "Delete GP button |cffffd700"..btnLabel.."|r?",
+                    button1 = "Delete", button2 = "Cancel",
+                    OnAccept = function()
+                        for j,k in ipairs(GP_KEY_ORDER) do
+                            if k==key then table.remove(GP_KEY_ORDER,j) ; break end
+                        end
+                        GP_VALUES[key]=nil ; GP_LABELS[key]=nil ; GP_HDR_LABELS[key]=nil
+                        local s = DarkIntentionsPointsDB.settings
+                        for j,def in ipairs(s.gp_custom) do
+                            if def.key==key then table.remove(s.gp_custom,j) ; break end
+                        end
+                        s["gp_"..key]=nil ; s["gph_"..key]=nil
+                        ShowUnsavedWarning()
+                        for _,row in ipairs(GRP.gpRows) do row:Hide() end
+                        GRP.gpRows = {}
+                        if GRP.RebuildGPHeaders then GRP.RebuildGPHeaders() end
+                        RefreshGP() ; RefreshSettings()
+                    end,
+                    timeout=0, whileDead=true, hideOnEscape=true,
+                }
+                StaticPopup_Show("DIP_DEL_GP_BTN")
             end)
 
             gpY = gpY - 30
