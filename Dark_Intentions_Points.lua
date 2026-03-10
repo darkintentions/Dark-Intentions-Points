@@ -1835,17 +1835,20 @@ local function BuildMainFrame()
             row.classTxt:SetJustifyH("LEFT") ; row.classTxt:SetTextColor(.6,.8,1)
 
             row.addBtn = StyledBtn(GRP.guildScrollChild,"Add to Roster",100,20,.2,.6,.25)
-            row.addBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-4,y-3)
+            row.addBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-108,y-3)
+
+            row.addAdminBtn = StyledBtn(GRP.guildScrollChild,"Add to Admin",100,20,.4,.5,.8)
+            row.addAdminBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-4,y-3)
 
             row.inRosterLbl = GRP.guildScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
             row.inRosterLbl:SetWidth(100)
-            row.inRosterLbl:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-4,y-5)
+            row.inRosterLbl:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-108,y-5)
             row.inRosterLbl:SetJustifyH("RIGHT") ; row.inRosterLbl:SetTextColor(.4,.8,.4)
             row.inRosterLbl:SetText("✓ On Roster")
 
             row.Hide = function(self)
                 self.bg:Hide() ; self.nameTxt:Hide() ; self.rankTxt:Hide()
-                self.classTxt:Hide() ; self.addBtn:Hide() ; self.inRosterLbl:Hide()
+                self.classTxt:Hide() ; self.addBtn:Hide() ; self.inRosterLbl:Hide() ; self.addAdminBtn:Hide()
             end
             row.Show = function(self)
                 self.bg:Show() ; self.nameTxt:Show() ; self.rankTxt:Show() ; self.classTxt:Show()
@@ -1873,6 +1876,14 @@ local function BuildMainFrame()
                         print("|cff00ff00[DIP]|r Added "..cn.." to roster.")
                     end)
                 end
+                row.addAdminBtn:Show()
+                row.addAdminBtn:SetScript("OnClick",function()
+                    InitDB()
+                    DarkIntentionsPointsDB.settings.permissions.charAccess[cn] = true
+                    ShowUnsavedWarning()
+                    RefreshAdmin()
+                    print("|cff00ff00[DIP]|r Added "..cn.." to admin access.")
+                end)
                 row:Show()
             else
                 row:Hide()
@@ -1990,28 +2001,38 @@ local function BuildMainFrame()
         table.insert(GRP.adminPermsUI, charSecLbl)
         adminY = adminY - 24
 
-        -- Roster member list
+        -- Show only characters with admin access (skip guild master)
+        local charCount = 0
         if DarkIntentionsPointsDB and DarkIntentionsPointsDB.roster then
             for _,charName in ipairs(DarkIntentionsPointsDB.roster) do
-                local isChecked = perms.charAccess[charName] or false
+                if perms.charAccess[charName] then
+                    charCount = charCount + 1
+                    -- Label
+                    local lbl = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+                    lbl:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+                    lbl:SetText(charName)
+                    table.insert(GRP.adminPermsUI, lbl)
 
-                -- Checkbox
-                local chkBtn = CreateFrame("CheckButton",nil,GRP.adminScrollChild,"ChatConfigCheckButtonTemplate")
-                chkBtn:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
-                chkBtn:SetChecked(isChecked)
-                chkBtn:SetScript("OnClick",function(self)
-                    perms.charAccess[charName] = self:GetChecked()
-                    ShowUnsavedWarning()
-                end)
+                    -- Remove button
+                    local removeBtn = StyledBtn(GRP.adminScrollChild,"Remove",80,18,.8,.3,.3)
+                    removeBtn:SetPoint("TOPRIGHT",GRP.adminScrollChild,"TOPRIGHT",-12,adminY-2)
+                    removeBtn:SetScript("OnClick",function()
+                        perms.charAccess[charName] = false
+                        ShowUnsavedWarning()
+                        RefreshAdmin()
+                    end)
+                    table.insert(GRP.adminPermsUI, removeBtn)
 
-                -- Label
-                local lbl = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
-                lbl:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",35,adminY)
-                lbl:SetText(charName)
-                table.insert(GRP.adminPermsUI, chkBtn)
-                table.insert(GRP.adminPermsUI, lbl)
-                adminY = adminY - 20
+                    adminY = adminY - 20
+                end
             end
+        end
+
+        if charCount == 0 then
+            local emptyMsg = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+            emptyMsg:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+            emptyMsg:SetText("|cff888888No characters with admin access|r")
+            table.insert(GRP.adminPermsUI, emptyMsg)
         end
 
         GRP.adminScrollChild:SetHeight(math.abs(adminY) + 40)
