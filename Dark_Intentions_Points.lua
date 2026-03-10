@@ -1400,11 +1400,12 @@ local function BuildMainFrame()
                     if k==key then table.remove(EP_KEY_ORDER,j) ; break end
                 end
                 POINT_VALUES[key]=nil ; BUTTON_LABELS[key]=nil ; EP_HDR_LABELS[key]=nil
-                InitDB()
                 local s = DarkIntentionsPointsDB.settings
                 for j,def in ipairs(s.ep_custom) do
                     if def.key==key then table.remove(s.ep_custom,j) ; break end
                 end
+                s["ep_"..key]=nil ; s["eph_"..key]=nil
+                ShowUnsavedWarning()
                 for _,row in ipairs(GRP.rosterRows) do row:Hide() end
                 GRP.rosterRows = {}
                 if GRP.RebuildEPHeaders then GRP.RebuildEPHeaders() end
@@ -1430,6 +1431,7 @@ local function BuildMainFrame()
                 InitDB()
                 table.insert(DarkIntentionsPointsDB.settings.ep_custom,
                     { key=key, value=val, btnLabel=btnTxt, hdrLabel=hdrTxt })
+                ShowUnsavedWarning()
                 if GRP.RebuildEPHeaders then GRP.RebuildEPHeaders() end
                 for _,row in ipairs(GRP.rosterRows) do row:Hide() end
                 GRP.rosterRows = {}
@@ -1492,11 +1494,12 @@ local function BuildMainFrame()
                     if k==key then table.remove(GP_KEY_ORDER,j) ; break end
                 end
                 GP_VALUES[key]=nil ; GP_LABELS[key]=nil ; GP_HDR_LABELS[key]=nil
-                InitDB()
                 local s = DarkIntentionsPointsDB.settings
                 for j,def in ipairs(s.gp_custom) do
                     if def.key==key then table.remove(s.gp_custom,j) ; break end
                 end
+                s["gp_"..key]=nil ; s["gph_"..key]=nil
+                ShowUnsavedWarning()
                 for _,row in ipairs(GRP.gpRows) do row:Hide() end
                 GRP.gpRows = {}
                 if GRP.RebuildGPHeaders then GRP.RebuildGPHeaders() end
@@ -1522,6 +1525,7 @@ local function BuildMainFrame()
                 InitDB()
                 table.insert(DarkIntentionsPointsDB.settings.gp_custom,
                     { key=key, value=val, btnLabel=btnTxt, hdrLabel=hdrTxt })
+                ShowUnsavedWarning()
                 if GRP.RebuildGPHeaders then GRP.RebuildGPHeaders() end
                 for _,row in ipairs(GRP.gpRows) do row:Hide() end
                 GRP.gpRows = {}
