@@ -1835,15 +1835,15 @@ local function BuildMainFrame()
             row.classTxt:SetWidth(120) ; row.classTxt:SetPoint("TOPLEFT",GRP.guildScrollChild,"TOPLEFT",310,y-5)
             row.classTxt:SetJustifyH("LEFT") ; row.classTxt:SetTextColor(.6,.8,1)
 
-            row.addBtn = StyledBtn(GRP.guildScrollChild,"Add to Roster",100,20,.2,.6,.25)
-            row.addBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-108,y-3)
+            row.addBtn = StyledBtn(GRP.guildScrollChild,"Add to Roster",95,20,.2,.6,.25)
+            row.addBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-106,y-3)
 
-            row.addAdminBtn = StyledBtn(GRP.guildScrollChild,"Add to Admin",100,20,.4,.5,.8)
+            row.addAdminBtn = StyledBtn(GRP.guildScrollChild,"Admin",60,20,.4,.5,.8)
             row.addAdminBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-4,y-3)
 
             row.inRosterLbl = GRP.guildScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
             row.inRosterLbl:SetWidth(100)
-            row.inRosterLbl:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-108,y-5)
+            row.inRosterLbl:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-106,y-5)
             row.inRosterLbl:SetJustifyH("RIGHT") ; row.inRosterLbl:SetTextColor(.4,.8,.4)
             row.inRosterLbl:SetText("✓ On Roster")
 
@@ -1852,7 +1852,7 @@ local function BuildMainFrame()
                 self.classTxt:Hide() ; self.addBtn:Hide() ; self.inRosterLbl:Hide() ; self.addAdminBtn:Hide()
             end
             row.Show = function(self)
-                self.bg:Show() ; self.nameTxt:Show() ; self.rankTxt:Show() ; self.classTxt:Show() ; self.addAdminBtn:Show()
+                self.bg:Show() ; self.nameTxt:Show() ; self.rankTxt:Show() ; self.classTxt:Show()
             end
             table.insert(GRP.guildRows, row)
         end
@@ -1882,7 +1882,7 @@ local function BuildMainFrame()
                     InitDB()
                     DarkIntentionsPointsDB.settings.permissions.charAccess[cn] = true
                     ShowUnsavedWarning()
-                    ShowTab("admin")
+                    RefreshAdmin()
                     print("|cff00ff00[DIP]|r Added "..cn.." to admin access.")
                 end)
                 row:Show()
