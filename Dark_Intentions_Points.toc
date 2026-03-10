@@ -1,0 +1,8 @@
+## Interface: 120001
+## Title: Dark Intentions Points
+## Notes: Track attendance and vault points for Dark Intentions guild members
+## Author: DarkIntentionsPoints
+## Version: 1.0.0
+## SavedVariables: DarkIntentionsPointsDB
+
+Dark_Intentions_Points.lua
