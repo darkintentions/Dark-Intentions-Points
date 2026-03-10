@@ -150,7 +150,14 @@ end
 
 local function RemoveFromRoster(n)
     for i,name in ipairs(DarkIntentionsPointsDB.roster) do
-        if name==n then table.remove(DarkIntentionsPointsDB.roster,i) ; ShowUnsavedWarning() ; return true end
+        if name==n then
+            table.remove(DarkIntentionsPointsDB.roster, i)
+            DarkIntentionsPointsDB.ep[n] = nil
+            DarkIntentionsPointsDB.gp[n] = nil
+            DarkIntentionsPointsDB.history[n] = nil
+            ShowUnsavedWarning()
+            return true
+        end
     end
     return false
 end
