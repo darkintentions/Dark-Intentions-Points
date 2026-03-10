@@ -1940,11 +1940,12 @@ local function BuildMainFrame()
         -- Get all guild ranks
         local guildName, guildRank, guildRankIndex = GetGuildInfo("player")
         local guildRanks = {}
-        for i=0, GetNumGuildRanks()-1 do
+        local i = 0
+        while true do
             local rankName = GetGuildRankInfo(i)
-            if rankName then
-                table.insert(guildRanks, {index=i, name=rankName})
-            end
+            if not rankName then break end
+            table.insert(guildRanks, {index=i, name=rankName})
+            i = i + 1
         end
 
         -- Create checkboxes for ranks
