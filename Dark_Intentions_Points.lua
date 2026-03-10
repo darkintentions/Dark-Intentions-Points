@@ -1838,8 +1838,11 @@ local function BuildMainFrame()
             row.addBtn = StyledBtn(GRP.guildScrollChild,"Add to Roster",95,20,.2,.6,.25)
             row.addBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-106,y-3)
 
-            row.addAdminBtn = StyledBtn(GRP.guildScrollChild,"Admin",60,20,.4,.5,.8)
+            row.addAdminBtn = CreateFrame("Button", nil, GRP.guildScrollChild, "UIPanelButtonTemplate")
+            row.addAdminBtn:SetSize(60, 20)
+            row.addAdminBtn:SetText("Admin")
             row.addAdminBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-4,y-3)
+            row.addAdminBtn:GetFontString():SetTextColor(1,1,1)
 
             row.inRosterLbl = GRP.guildScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
             row.inRosterLbl:SetWidth(100)
