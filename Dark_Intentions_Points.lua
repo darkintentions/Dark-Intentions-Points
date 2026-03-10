@@ -1120,6 +1120,7 @@ local function BuildMainFrame()
         for _,h in pairs(GRP.epHdrs) do h:Hide() end
         for _,h in ipairs(epTrailingHdrs) do h:Hide() end
         GRP.epHdrs = {} ; epTrailingHdrs = {}
+        if not DarkIntentionsPointsDB or not DarkIntentionsPointsDB.roster or #DarkIntentionsPointsDB.roster == 0 then return end
         local ex = GRP.epHdrBaseX
         for _,key in ipairs(EP_KEY_ORDER) do
             local h = GRP.epHdrParent:CreateFontString(nil,"OVERLAY","GameFontNormal")
@@ -1180,6 +1181,7 @@ local function BuildMainFrame()
         for _,h in pairs(GRP.gpHdrs) do h:Hide() end
         for _,h in ipairs(gpTrailingHdrs) do h:Hide() end
         GRP.gpHdrs = {} ; gpTrailingHdrs = {}
+        if not DarkIntentionsPointsDB or not DarkIntentionsPointsDB.roster or #DarkIntentionsPointsDB.roster == 0 then return end
         local colors = { {.3,.8,.3}, {.9,.6,.1}, {.6,.4,.9}, {.2,.8,.8}, {.9,.3,.5} }
         local gx = GRP.gpHdrBaseX
         for ci,key in ipairs(GP_KEY_ORDER) do
