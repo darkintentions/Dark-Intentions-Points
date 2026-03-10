@@ -1838,11 +1838,8 @@ local function BuildMainFrame()
             row.addBtn = StyledBtn(GRP.guildScrollChild,"Add to Roster",95,20,.2,.6,.25)
             row.addBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-106,y-3)
 
-            row.addAdminBtn = CreateFrame("Button", nil, GRP.guildScrollChild, "UIPanelButtonTemplate")
-            row.addAdminBtn:SetSize(60, 20)
-            row.addAdminBtn:SetText("Admin")
+            row.addAdminBtn = StyledBtn(GRP.guildScrollChild,"Admin",60,20,.4,.5,.8)
             row.addAdminBtn:SetPoint("TOPRIGHT",GRP.guildScrollChild,"TOPRIGHT",-4,y-3)
-            row.addAdminBtn:GetFontString():SetTextColor(1,1,1)
 
             row.inRosterLbl = GRP.guildScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
             row.inRosterLbl:SetWidth(100)
@@ -2013,29 +2010,66 @@ local function BuildMainFrame()
 
         -- Show only characters with admin access (skip guild master)
         local charCount = 0
-        if DarkIntentionsPointsDB and DarkIntentionsPointsDB.roster then
-            for _,charName in ipairs(DarkIntentionsPointsDB.roster) do
-                if perms.charAccess[charName] then
-                    charCount = charCount + 1
-                    -- Label
-                    local lbl = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
-                    lbl:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
-                    lbl:SetText(charName)
-                    table.insert(GRP.adminPermsUI, lbl)
-
-                    -- Remove button
-                    local removeBtn = StyledBtn(GRP.adminScrollChild,"Remove",80,18,.8,.3,.3)
-                    removeBtn:SetPoint("TOPRIGHT",GRP.adminScrollChild,"TOPRIGHT",-12,adminY-2)
-                    removeBtn:SetScript("OnClick",function()
-                        perms.charAccess[charName] = false
-                        ShowUnsavedWarning()
-                        RefreshAdmin()
-                    end)
-                    table.insert(GRP.adminPermsUI, removeBtn)
-
-                    adminY = adminY - 20
-                end
+        local charNames = {}
+        for charName,_ in pairs(perms.charAccess) do
+            if perms.charAccess[charName] then
+                table.insert(charNames, charName)
             end
+        end
+        table.sort(charNames)
+
+        for _,charName in ipairs(charNames) do
+            charCount = charCount + 1
+            -- Label
+            local lbl = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+            lbl:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+            lbl:SetText(charName)
+            table.insert(GRP.adminPermsUI, lbl)
+
+            -- Remove button
+            local removeBtn = StyledBtn(GRP.adminScrollChild,"Remove",70,18,.8,.3,.3)
+            removeBtn:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",180,adminY-2)
+            removeBtn:SetScript("OnClick",function()
+                local confirmDialog = CreateFrame("Frame","DIPConfirmRemove",UIParent,"BackdropTemplate")
+                confirmDialog:SetSize(350,130)
+                confirmDialog:SetPoint("CENTER")
+                confirmDialog:SetFrameStrata("DIALOG")
+                confirmDialog:SetBackdrop({ bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
+                    edgeFile="Interface\\DialogFrame\\UI-DialogBox-Border",
+                    tile=true,tileSize=32,edgeSize=24,insets={left=8,right=8,top=8,bottom=8}})
+                confirmDialog:SetMovable(true) ; confirmDialog:EnableMouse(true)
+                confirmDialog:RegisterForDrag("LeftButton")
+                confirmDialog:SetScript("OnDragStart",confirmDialog.StartMoving)
+                confirmDialog:SetScript("OnDragStop", confirmDialog.StopMovingOrSizing)
+
+                local title = confirmDialog:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
+                title:SetPoint("TOP",confirmDialog,"TOP",0,-14)
+                title:SetText("|cffff6b6bRemove Admin Access|r")
+
+                local msg = confirmDialog:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+                msg:SetPoint("TOP",confirmDialog,"TOP",0,-40)
+                msg:SetWidth(320)
+                msg:SetJustifyH("CENTER")
+                msg:SetText("Are you sure you want to remove\n|cffffffff"..charName.."|r from admin access?")
+
+                local yesBtn = StyledBtn(confirmDialog,"Yes",70,24,.6,.2,.2)
+                yesBtn:SetPoint("BOTTOMLEFT",confirmDialog,"BOTTOMLEFT",12,12)
+                yesBtn:SetScript("OnClick",function()
+                    perms.charAccess[charName] = false
+                    ShowUnsavedWarning()
+                    confirmDialog:Hide()
+                    RefreshAdmin()
+                end)
+
+                local noBtn = StyledBtn(confirmDialog,"No",70,24,.2,.4,.6)
+                noBtn:SetPoint("BOTTOMRIGHT",confirmDialog,"BOTTOMRIGHT",-12,12)
+                noBtn:SetScript("OnClick",function()
+                    confirmDialog:Hide()
+                end)
+            end)
+            table.insert(GRP.adminPermsUI, removeBtn)
+
+            adminY = adminY - 20
         end
 
         if charCount == 0 then
