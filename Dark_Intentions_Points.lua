@@ -1937,16 +1937,17 @@ local function BuildMainFrame()
         table.insert(GRP.adminPermsUI, rankSecLbl)
         adminY = adminY - 24
 
-        -- Get all guild ranks
-        local guildName, guildRank, guildRankIndex = GetGuildInfo("player")
+        -- Get all guild ranks by collecting unique ranks from guild members
         local guildRanks = {}
-        local i = 0
-        while true do
-            local rankName = GetGuildRankInfo(i)
-            if not rankName then break end
-            table.insert(guildRanks, {index=i, name=rankName})
-            i = i + 1
+        local ranksSeen = {}
+        for i=1, GetNumGuildMembers() do
+            local name, rank, rankIndex = GetGuildRosterInfo(i)
+            if rankIndex and not ranksSeen[rankIndex] then
+                ranksSeen[rankIndex] = true
+                table.insert(guildRanks, {index=rankIndex, name=rank})
+            end
         end
+        table.sort(guildRanks, function(a,b) return a.index < b.index end)
 
         -- Create checkboxes for ranks
         InitDB()
