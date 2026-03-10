@@ -28,6 +28,10 @@ local function InitDB()
     if not DarkIntentionsPointsDB.gp             then DarkIntentionsPointsDB.gp      = {} end
     if not DarkIntentionsPointsDB.history        then DarkIntentionsPointsDB.history = {} end
     if not DarkIntentionsPointsDB.settings       then DarkIntentionsPointsDB.settings = {} end
+    local s = DarkIntentionsPointsDB.settings
+    if not s.permissions then s.permissions = {} end
+    if not s.permissions.rankAccess then s.permissions.rankAccess = {} end
+    if not s.permissions.charAccess then s.permissions.charAccess = {} end
     if DarkIntentionsPointsDB.points then
         for k,v in pairs(DarkIntentionsPointsDB.points) do
             if not DarkIntentionsPointsDB.ep[k] then DarkIntentionsPointsDB.ep[k] = v end
@@ -35,7 +39,6 @@ local function InitDB()
         DarkIntentionsPointsDB.points = nil
     end
     -- Load custom EP buttons (stored as ordered list)
-    local s = DarkIntentionsPointsDB.settings
     if not s.ep_custom then s.ep_custom = {} end
     for _,def in ipairs(s.ep_custom) do
         local k = def.key
@@ -159,6 +162,40 @@ local function RemoveFromRoster(n)
             return true
         end
     end
+    return false
+end
+
+-- ============================================================
+-- Guild Master & Permissions
+-- ============================================================
+local function IsGuildMaster()
+    local guildName, guildRank, guildRankIndex = C_GuildInfo.GetMyGuildInfo()
+    if not guildName then return false end
+    return guildRankIndex == 0
+end
+
+local function GetPlayerRankIndex()
+    local guildName, guildRank, guildRankIndex = C_GuildInfo.GetMyGuildInfo()
+    if not guildName then return -1 end
+    return guildRankIndex
+end
+
+local function CanViewTab(tabName)
+    if tabName == "roster" then return true end
+    if IsGuildMaster() then return true end
+
+    InitDB()
+    local playerName = UnitName("player")
+    local rankIdx = GetPlayerRankIndex()
+    local perms = DarkIntentionsPointsDB.settings.permissions
+
+    if tabName == "admin" then
+        return false
+    end
+
+    if perms.charAccess[playerName] then return true end
+    if rankIdx >= 0 and perms.rankAccess[rankIdx] then return true end
+
     return false
 end
 
@@ -937,16 +974,20 @@ end
 -- Tab switcher
 -- ============================================================
 ShowTab = function(name)
+    if not CanViewTab(name) then
+        name = "roster"
+    end
     GRP.activeTab = name
-    if not GRP.summaryPanel or not GRP.epPanel or not GRP.gpPanel or not GRP.guildPanel or not GRP.settingsPanel then return end
+    if not GRP.summaryPanel or not GRP.epPanel or not GRP.gpPanel or not GRP.guildPanel or not GRP.settingsPanel or not GRP.adminPanel then return end
 
     GRP.summaryPanel:Hide() ; GRP.epPanel:Hide() ; GRP.gpPanel:Hide()
-    GRP.guildPanel:Hide()   ; GRP.settingsPanel:Hide()
+    GRP.guildPanel:Hide()   ; GRP.settingsPanel:Hide() ; GRP.adminPanel:Hide()
     if GRP.tabSummary  then GRP.tabSummary:SetActive(false)  end
     if GRP.tabEP       then GRP.tabEP:SetActive(false)       end
     if GRP.tabGP       then GRP.tabGP:SetActive(false)       end
     if GRP.tabGuild    then GRP.tabGuild:SetActive(false)    end
     if GRP.tabSettings then GRP.tabSettings:SetActive(false) end
+    if GRP.tabAdmin    then GRP.tabAdmin:SetActive(false)    end
 
     if name == "summary" then
         GRP.summaryPanel:Show()
@@ -965,10 +1006,43 @@ ShowTab = function(name)
         GRP.settingsPanel:Show()
         if GRP.tabSettings then GRP.tabSettings:SetActive(true) end
         RefreshSettings()
+    elseif name == "admin" then
+        GRP.adminPanel:Show()
+        if GRP.tabAdmin then GRP.tabAdmin:SetActive(true) end
+        RefreshAdmin()
     else
         GRP.epPanel:Show()
         if GRP.tabEP then GRP.tabEP:SetActive(true) end
         RefreshRoster()
+    end
+end
+
+-- ============================================================
+-- Tab Visibility Management
+-- ============================================================
+local function UpdateTabVisibility()
+    local tabsInfo = {
+        {"summary", GRP.tabSummary},
+        {"effortpoints", GRP.tabEP},
+        {"gearpoints", GRP.tabGP},
+        {"guild", GRP.tabGuild},
+        {"settings", GRP.tabSettings},
+        {"admin", GRP.tabAdmin}
+    }
+
+    for _,info in ipairs(tabsInfo) do
+        local tabName, tabBtn = info[1], info[2]
+        if tabBtn then
+            if CanViewTab(tabName) then
+                tabBtn:Show()
+            else
+                tabBtn:Hide()
+            end
+        end
+    end
+
+    if not CanViewTab(GRP.activeTab) then
+        ShowTab("roster")
     end
 end
 
@@ -1015,17 +1089,19 @@ local function BuildMainFrame()
     tabLine:SetPoint("BOTTOMRIGHT",f,"BOTTOMRIGHT",-12,12+TAB_H)
     tabLine:SetHeight(1) ; tabLine:SetColorTexture(.45,.35,.65,.8)
 
-    -- tab buttons  (5 tabs, each 126px wide with ~4px gap = 130 steps)
+    -- tab buttons  (6 tabs, each 126px wide with ~4px gap = 130 steps)
     GRP.tabSummary  = MakeTabBtn(f,"Raid Roster",   18)
     GRP.tabEP       = MakeTabBtn(f,"Effort Points", 148)
     GRP.tabGP       = MakeTabBtn(f,"Gear Points",   278)
     GRP.tabGuild    = MakeTabBtn(f,"Guild",         408)
     GRP.tabSettings = MakeTabBtn(f,"Settings",      538)
+    GRP.tabAdmin    = MakeTabBtn(f,"Admin",         668)
     GRP.tabSummary:SetScript( "OnClick",function() ShowTab("summary")      end)
     GRP.tabEP:SetScript(      "OnClick",function() ShowTab("effortpoints") end)
     GRP.tabGP:SetScript(      "OnClick",function() ShowTab("gearpoints")   end)
     GRP.tabGuild:SetScript(   "OnClick",function() ShowTab("guild")        end)
     GRP.tabSettings:SetScript("OnClick",function() ShowTab("settings")     end)
+    GRP.tabAdmin:SetScript(   "OnClick",function() ShowTab("admin")        end)
 
     -- ── unsaved-changes warning bar ───────────────────────────
     local warnBar = CreateFrame("Frame",nil,f)
@@ -1348,6 +1424,18 @@ local function BuildMainFrame()
 
     RefreshSettings = function()
         ClearStWidgets()
+
+        if not IsGuildMaster() then
+            local restrictMsg = stChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+            restrictMsg:SetPoint("TOPLEFT",stChild,"TOPLEFT",12,-10)
+            restrictMsg:SetText("|cffff6b6bSettings are only available to the Guild Master.|r")
+            restrictMsg:SetWidth(400)
+            restrictMsg:SetJustifyH("LEFT")
+            restrictMsg:SetWordWrap(true)
+            table.insert(GRP.stWidgets, restrictMsg)
+            stChild:SetHeight(60)
+            return
+        end
 
         -- ─── EP section ──────────────────────────────────────────
         local epSecLbl = stChild:CreateFontString(nil,"OVERLAY","GameFontNormal")
@@ -1789,6 +1877,139 @@ local function BuildMainFrame()
 
     GRP.guildFrame = guildPanel  -- keep ref name compatible
 
+    -- ============================================================
+    -- ADMIN PANEL
+    -- ============================================================
+    local adminPanel = CreateFrame("Frame","DIPAdminPanel",content)
+    adminPanel:SetAllPoints(content)
+    adminPanel:Hide()
+
+    -- Admin scrollable content
+    local adminScroll = CreateFrame("ScrollFrame","DIPAdminScroll",adminPanel,"UIPanelScrollFrameTemplate")
+    adminScroll:SetPoint("TOPLEFT",    adminPanel,"TOPLEFT",   2,-4)
+    adminScroll:SetPoint("BOTTOMRIGHT",adminPanel,"BOTTOMRIGHT",-20,4)
+    local adminChild = CreateFrame("Frame","DIPAdminChild",adminScroll)
+    adminChild:SetWidth(600) ; adminChild:SetHeight(400)
+    adminScroll:SetScrollChild(adminChild)
+    GRP.adminPanel = adminPanel
+    GRP.adminScrollChild = adminChild
+    GRP.adminPermsUI = {}
+
+    RefreshAdmin = function()
+        if not GRP.adminScrollChild then return end
+        for _,widget in ipairs(GRP.adminPermsUI) do widget:Hide() end
+        GRP.adminPermsUI = {}
+
+        local adminY = -10
+
+        if not IsGuildMaster() then
+            local noAccessMsg = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+            noAccessMsg:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+            noAccessMsg:SetText("|cffff6b6bAdmin panel is only available to the Guild Master.|r")
+            noAccessMsg:SetWidth(400)
+            noAccessMsg:SetJustifyH("LEFT")
+            noAccessMsg:SetWordWrap(true)
+            table.insert(GRP.adminPermsUI, noAccessMsg)
+            return
+        end
+
+        -- Header
+        local titleLbl = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormal")
+        titleLbl:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+        titleLbl:SetFont("Fonts\\FRIZQT__.TTF",12,"OUTLINE")
+        titleLbl:SetText("Permissions Management") ; titleLbl:SetTextColor(1,.85,0)
+        table.insert(GRP.adminPermsUI, titleLbl)
+        adminY = adminY - 30
+
+        -- Guild Master Info
+        local playerName = UnitName("player")
+        local gmLabel = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+        gmLabel:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+        gmLabel:SetText("Guild Master: |cffffffff"..playerName.."|r")
+        table.insert(GRP.adminPermsUI, gmLabel)
+        adminY = adminY - 20
+
+        -- Rank-based access section
+        local rankSecLbl = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormal")
+        rankSecLbl:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+        rankSecLbl:SetFont("Fonts\\FRIZQT__.TTF",11,"OUTLINE")
+        rankSecLbl:SetText("Grant All-Tab Access to Guild Ranks") ; rankSecLbl:SetTextColor(1,.85,0)
+        table.insert(GRP.adminPermsUI, rankSecLbl)
+        adminY = adminY - 24
+
+        -- Get all guild ranks
+        local guildName, guildRank, guildRankIndex = C_GuildInfo.GetMyGuildInfo()
+        local guildRanks = {}
+        for i=0, GetNumGuildRanks()-1 do
+            local rankName = GetGuildRankInfo(i)
+            if rankName then
+                table.insert(guildRanks, {index=i, name=rankName})
+            end
+        end
+
+        -- Create checkboxes for ranks
+        InitDB()
+        local perms = DarkIntentionsPointsDB.settings.permissions
+        for _,rankInfo in ipairs(guildRanks) do
+            local rankIdx = rankInfo.index
+            local rankName = rankInfo.name
+            local isChecked = perms.rankAccess[rankIdx] or false
+
+            -- Checkbox
+            local chkBtn = CreateFrame("CheckButton",nil,GRP.adminScrollChild,"ChatConfigCheckButtonTemplate")
+            chkBtn:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+            chkBtn:SetChecked(isChecked)
+            chkBtn:SetScript("OnClick",function(self)
+                perms.rankAccess[rankIdx] = self:GetChecked()
+                ShowUnsavedWarning()
+            end)
+
+            -- Label
+            local lbl = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+            lbl:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",35,adminY)
+            lbl:SetText(rankName)
+            table.insert(GRP.adminPermsUI, chkBtn)
+            table.insert(GRP.adminPermsUI, lbl)
+            adminY = adminY - 20
+        end
+
+        adminY = adminY - 10
+
+        -- Character-based access section
+        local charSecLbl = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormal")
+        charSecLbl:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+        charSecLbl:SetFont("Fonts\\FRIZQT__.TTF",11,"OUTLINE")
+        charSecLbl:SetText("Grant All-Tab Access to Characters") ; charSecLbl:SetTextColor(1,.85,0)
+        table.insert(GRP.adminPermsUI, charSecLbl)
+        adminY = adminY - 24
+
+        -- Roster member list
+        if DarkIntentionsPointsDB and DarkIntentionsPointsDB.roster then
+            for _,charName in ipairs(DarkIntentionsPointsDB.roster) do
+                local isChecked = perms.charAccess[charName] or false
+
+                -- Checkbox
+                local chkBtn = CreateFrame("CheckButton",nil,GRP.adminScrollChild,"ChatConfigCheckButtonTemplate")
+                chkBtn:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",12,adminY)
+                chkBtn:SetChecked(isChecked)
+                chkBtn:SetScript("OnClick",function(self)
+                    perms.charAccess[charName] = self:GetChecked()
+                    ShowUnsavedWarning()
+                end)
+
+                -- Label
+                local lbl = GRP.adminScrollChild:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
+                lbl:SetPoint("TOPLEFT",GRP.adminScrollChild,"TOPLEFT",35,adminY)
+                lbl:SetText(charName)
+                table.insert(GRP.adminPermsUI, chkBtn)
+                table.insert(GRP.adminPermsUI, lbl)
+                adminY = adminY - 20
+            end
+        end
+
+        GRP.adminScrollChild:SetHeight(math.abs(adminY) + 40)
+    end
+
     -- open on Raid Roster tab
     ShowTab("summary")
 end
@@ -1801,7 +2022,7 @@ SLASH_DIP2 = "/darkintentionspoints"
 SlashCmdList["DIP"] = function(msg)
     local cmd = msg:lower():match("^%s*(%S*)")
     if cmd=="show" or cmd=="" then
-        BuildMainFrame() ; GRP.mainFrame:Show() ; ShowTab(GRP.activeTab)
+        BuildMainFrame() ; UpdateTabVisibility() ; GRP.mainFrame:Show() ; ShowTab(GRP.activeTab)
     elseif cmd=="hide" then
         if GRP.mainFrame then GRP.mainFrame:Hide() end
     elseif cmd=="ep" then
@@ -1843,6 +2064,8 @@ ev:RegisterEvent("GUILD_ROSTER_UPDATE")
 ev:SetScript("OnEvent",function(self,event,...)
     if event=="ADDON_LOADED" and ...==ADDON_NAME then
         InitDB()
+        GRP.playerName = UnitName("player")
+        GRP.playerRankIndex = GetPlayerRankIndex()
         print("|cffffd700Dark Intentions Points|r loaded!  |cff00ff00/dip|r to open.")
     elseif event=="GUILD_ROSTER_UPDATE" then
         if GRP.guildPanel and GRP.guildPanel:IsShown() then RefreshGuildBrowser() end
