@@ -1880,6 +1880,12 @@ local function BuildMainFrame()
                 row.addAdminBtn:Show()
                 row.addAdminBtn:SetScript("OnClick",function()
                     InitDB()
+                    if not DarkIntentionsPointsDB.settings.permissions then
+                        DarkIntentionsPointsDB.settings.permissions = {}
+                    end
+                    if not DarkIntentionsPointsDB.settings.permissions.charAccess then
+                        DarkIntentionsPointsDB.settings.permissions.charAccess = {}
+                    end
                     DarkIntentionsPointsDB.settings.permissions.charAccess[cn] = true
                     ShowUnsavedWarning()
                     RefreshAdmin()
