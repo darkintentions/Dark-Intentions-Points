@@ -150,14 +150,7 @@ end
 
 local function RemoveFromRoster(n)
     for i,name in ipairs(DarkIntentionsPointsDB.roster) do
-        if name==n then
-            table.remove(DarkIntentionsPointsDB.roster, i)
-            DarkIntentionsPointsDB.ep[n] = nil
-            DarkIntentionsPointsDB.gp[n] = nil
-            DarkIntentionsPointsDB.history[n] = nil
-            ShowUnsavedWarning()
-            return true
-        end
+        if name==n then table.remove(DarkIntentionsPointsDB.roster,i) ; ShowUnsavedWarning() ; return true end
     end
     return false
 end
@@ -1079,7 +1072,8 @@ local function BuildMainFrame()
     local sx = 38+S_NAME_W+6
     SHdr("EP (Effort Pts)", sx,S_EP_W,.4,.9,.4) ; sx=sx+S_EP_W+6
     SHdr("GP (Gear Pts)",   sx,S_GP_W,1,.7,.2)  ; sx=sx+S_GP_W+6
-    SHdr("PR (EP / GP)",    sx,S_PR_W,1,.85,0)
+    SHdr("PR (EP / GP)",    sx,S_PR_W,1,.85,0)  ; sx=sx+S_PR_W+6+42+4
+    SHdr("Rem", sx, ICO_W, .8,.3,.3)
 
     local sHdrSep = sumPanel:CreateTexture(nil,"BACKGROUND")
     sHdrSep:SetPoint("TOPLEFT", sumPanel,"TOPLEFT", 0,-20)
