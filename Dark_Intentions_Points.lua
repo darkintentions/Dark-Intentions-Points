@@ -1852,7 +1852,7 @@ local function BuildMainFrame()
                 self.classTxt:Hide() ; self.addBtn:Hide() ; self.inRosterLbl:Hide() ; self.addAdminBtn:Hide()
             end
             row.Show = function(self)
-                self.bg:Show() ; self.nameTxt:Show() ; self.rankTxt:Show() ; self.classTxt:Show()
+                self.bg:Show() ; self.nameTxt:Show() ; self.rankTxt:Show() ; self.classTxt:Show() ; self.addAdminBtn:Show()
             end
             table.insert(GRP.guildRows, row)
         end
@@ -1882,7 +1882,7 @@ local function BuildMainFrame()
                     InitDB()
                     DarkIntentionsPointsDB.settings.permissions.charAccess[cn] = true
                     ShowUnsavedWarning()
-                    RefreshAdmin()
+                    ShowTab("admin")
                     print("|cff00ff00[DIP]|r Added "..cn.." to admin access.")
                 end)
                 row:Show()
