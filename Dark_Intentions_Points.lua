@@ -668,10 +668,14 @@ local function CreateSummaryRow(parent, yOff)
     row.you:SetTextColor(.4,1,1)
     x = x+42+4
 
+    row.bH = IcoBtn(parent,"H","View history", .4,.7,.9)
+    row.bH:SetPoint("TOPLEFT",parent,"TOPLEFT",x,yOff-6)
+    x = x+28
+
     row.bX = IcoBtn(parent,"X","Remove from roster", .7,.1,.1)
     row.bX:SetPoint("TOPLEFT",parent,"TOPLEFT",x,yOff-6)
 
-    local ALL = {"bg","rank","name","ep","gp","pr","you","bX"}
+    local ALL = {"bg","rank","name","ep","gp","pr","you","bH","bX"}
     row.Hide = function(self) for _,k in ipairs(ALL) do self[k]:Hide() end end
     row.Show = function(self) for _,k in ipairs(ALL) do self[k]:Show() end end
     return row
@@ -732,6 +736,7 @@ RefreshSummary = function()
             row.gp:SetText(GetGP(cn))
             row.pr:SetText(string.format("%.2f",GetPR(cn)))
             row.you:SetText(isMe and "< You" or "")
+            row.bH:SetScript("OnClick", function() ShowHistoryFrame(cn) end)
             row.bX:SetScript("OnClick", function()
                 StaticPopupDialogs["DIP_REMOVE"] = {
                     text    = "Remove |cffffd700"..cn.."|r from the roster?",
@@ -1156,6 +1161,7 @@ local function BuildMainFrame()
     SHdr("EP (Effort Pts)", sx,S_EP_W,.4,.9,.4) ; sx=sx+S_EP_W+6
     SHdr("GP (Gear Pts)",   sx,S_GP_W,1,.7,.2)  ; sx=sx+S_GP_W+6
     SHdr("PR (EP / GP)",    sx,S_PR_W,1,.85,0)  ; sx=sx+S_PR_W+6+42+4
+    SHdr("Hist", sx, ICO_W, .4,.7,.9)
 
     local sHdrSep = sumPanel:CreateTexture(nil,"BACKGROUND")
     sHdrSep:SetPoint("TOPLEFT", sumPanel,"TOPLEFT", 0,-20)
