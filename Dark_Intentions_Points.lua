@@ -1053,7 +1053,7 @@ local function BuildMainFrame()
     if GRP.mainFrame then GRP.mainFrame:Show() ; return end
 
     local f = CreateFrame("Frame","DIPMainFrame",UIParent,"BackdropTemplate")
-    f:SetSize(FRAME_W+240, 520+TAB_H)
+    f:SetSize(FRAME_W+360, 520+TAB_H)
     f:SetPoint("CENTER",UIParent,"CENTER")
     f:SetMovable(true) ; f:EnableMouse(true)
     f:RegisterForDrag("LeftButton")
