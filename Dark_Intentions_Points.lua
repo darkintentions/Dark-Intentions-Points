@@ -270,7 +270,7 @@ local function ShowHistoryFrame(charName)
             local fs = hf:CreateFontString(nil,"OVERLAY","GameFontNormalSmall")
             fs:SetPoint("TOPLEFT",hf,"TOPLEFT",x,-44)
             fs:SetWidth(w) ; fs:SetJustifyH("CENTER")
-            fs:SetTextColor(r or .7,g or .7,b or .7) ; fs:SetText(txt)
+            fs:SetTextColor(r or 1,g or 1,b or 1) ; fs:SetText(txt)
         end
         H("Date / Time",18,140) ; H("Reason",162,210)
         H("EP",378,44,.4,.9,.4) ; H("GP",426,44,.9,.7,.2)
@@ -339,11 +339,11 @@ local function ShowHistoryFrame(charName)
             local ev = e.ep or 0
             if ev>0 then ln.ep:SetText("|cff00ff00+"..ev.."|r")
             elseif ev<0 then ln.ep:SetText("|cffff4444"..ev.."|r")
-            else ln.ep:SetText("|cffaaaaaa\226\128\148|r") end
+            else ln.ep:SetText("|cffffffff\226\128\148|r") end
             local gv = e.gp or 0
             if gv>0 then ln.gp:SetText("|cffffaa00+"..gv.."|r")
             elseif gv<0 then ln.gp:SetText("|cffff8844"..gv.."|r")
-            else ln.gp:SetText("|cffaaaaaa\226\128\148|r") end
+            else ln.gp:SetText("|cffffffff\226\128\148|r") end
             ln.bg:Show() ; ln.d:Show() ; ln.r:Show() ; ln.ep:Show() ; ln.gp:Show()
         else
             ln.bg:Hide() ; ln.d:Hide() ; ln.r:Hide() ; ln.ep:Hide() ; ln.gp:Hide()
@@ -464,7 +464,7 @@ local function CreateRosterRow(parent, yOff)
     row.rank = parent:CreateFontString(nil,"OVERLAY","GameFontNormal")
     row.rank:SetWidth(24)
     row.rank:SetPoint("TOPLEFT",parent,"TOPLEFT",8,yOff-6)
-    row.rank:SetTextColor(.6,.6,.6)
+    row.rank:SetTextColor(1,1,1)
 
     row.name = parent:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
     row.name:SetWidth(NAME_W-30)
@@ -599,7 +599,7 @@ local function CreateSummaryRow(parent, yOff)
     row.rank = parent:CreateFontString(nil,"OVERLAY","GameFontNormal")
     row.rank:SetWidth(28)
     row.rank:SetPoint("TOPLEFT",parent,"TOPLEFT",8,yOff-7)
-    row.rank:SetTextColor(.6,.6,.6)
+    row.rank:SetTextColor(1,1,1)
 
     row.name = parent:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
     row.name:SetWidth(S_NAME_W)
@@ -686,7 +686,7 @@ RefreshSummary = function()
                 row.rank:SetText("\226\152\133") -- ★
                 row.rank:SetTextColor(1,.85,0)
             else
-                row.rank:SetText((prRank[cn] or i)..".") ; row.rank:SetTextColor(.6,.6,.6)
+                row.rank:SetText((prRank[cn] or i)..".") ; row.rank:SetTextColor(1,1,1)
             end
 
             local r,g,b = GetClassColor(cn)
@@ -734,7 +734,7 @@ local function CreateGPRow(parent, yOff)
     row.rank = parent:CreateFontString(nil,"OVERLAY","GameFontNormal")
     row.rank:SetWidth(24)
     row.rank:SetPoint("TOPLEFT",parent,"TOPLEFT",8,yOff-6)
-    row.rank:SetTextColor(.6,.6,.6)
+    row.rank:SetTextColor(1,1,1)
 
     row.name = parent:CreateFontString(nil,"OVERLAY","GameFontNormalLarge")
     row.name:SetWidth(NAME_W-30)
@@ -745,7 +745,7 @@ local function CreateGPRow(parent, yOff)
     row.gpBtns = {}
     local colors = { {.3,.7,.3}, {.8,.5,.1}, {.5,.3,.8}, {.2,.7,.8}, {.8,.2,.4} }
     for ci,key in ipairs(GP_KEY_ORDER) do
-        local rc = colors[ci] or {.5,.5,.5}
+        local rc = colors[ci] or {1,1,1}
         local btn = StyledBtn(parent,GP_LABELS[key],GP_BTN_W,BTN_H,rc[1],rc[2],rc[3])
         btn:SetPoint("TOPLEFT",parent,"TOPLEFT",x,yOff-5)
         x = x+GP_BTN_W+GP_BTN_GAP
@@ -915,7 +915,7 @@ local function MakeTabBtn(parent, label, xLeft)
     -- label font string
     local lbl = btn:CreateFontString(nil,"OVERLAY","GameFontNormal")
     lbl:SetAllPoints(btn) ; lbl:SetJustifyH("CENTER") ; lbl:SetJustifyV("MIDDLE")
-    lbl:SetText(label) ; lbl:SetTextColor(.72,.72,.72)
+    lbl:SetText(label) ; lbl:SetTextColor(1,1,1)
     btn._lbl = lbl
 
     function btn:SetActive(on)
@@ -925,7 +925,7 @@ local function MakeTabBtn(parent, label, xLeft)
             self._ul:Show()
         else
             self._bg:SetColorTexture(.15,.12,.28,.95)
-            self._lbl:SetTextColor(.72,.72,.72)
+            self._lbl:SetTextColor(1,1,1)
             self._ul:Hide()
         end
     end
